@@ -128,6 +128,12 @@ public final class ExtendedSocketOptions {
     public static final SocketOption<Integer> TCP_KEEPINTERVAL
             = new ExtSocketOption<Integer>("TCP_KEEPINTERVAL", Integer.class);
 
+    public static final SocketOption<Integer> SIO_KEEPALIVE_TIME
+            = new ExtSocketOption<Integer>("SIO_KEEPALIVE_TIME", Integer.class);
+
+    public static final SocketOption<Integer> SIO_KEEPALIVE_INTERVAL
+            = new ExtSocketOption<Integer>("SIO_KEEPALIVE_INTERVAL", Integer.class);
+
     /**
      * Keep-Alive retransmission maximum limit.
      *
@@ -231,6 +237,8 @@ public final class ExtendedSocketOptions {
             platformSocketOptions.quickAckSupported();
     private static final boolean keepAliveOptSupported =
             platformSocketOptions.keepAliveOptionsSupported();
+    private static final boolean sioKeepAliveOptSupported =
+            platformSocketOptions.sioKeepAliveOptionsSupported();
     private static final boolean peerCredentialsSupported =
             platformSocketOptions.peerCredentialsSupported();
     private static final boolean incomingNapiIdOptSupported  =
@@ -250,6 +258,9 @@ public final class ExtendedSocketOptions {
         }
         if (keepAliveOptSupported) {
             options.addAll(Set.of(TCP_KEEPCOUNT, TCP_KEEPIDLE, TCP_KEEPINTERVAL));
+        }
+        if (sioKeepAliveOptSupported) {
+            options.addAll(Set.of(SIO_KEEPALIVE_TIME, SIO_KEEPALIVE_INTERVAL));
         }
         if (peerCredentialsSupported) {
             options.add(SO_PEERCRED);
@@ -363,6 +374,11 @@ public final class ExtendedSocketOptions {
         platformSocketOptions.setTcpKeepAliveIntvl(fdAccess.get(fd), value);
     }
 
+    private static void setTcpSioKeepAliveValues(FileDescriptor fd, int keepAliveTime, int keepAliveInterval)
+            throws SocketException {
+        platformSocketOptions.setSioKeepAliveValues(fdAccess.get(fd), keepAliveTime, keepAliveInterval);
+    }
+
     private static int getTcpkeepAliveProbes(FileDescriptor fd) throws SocketException {
         return platformSocketOptions.getTcpkeepAliveProbes(fdAccess.get(fd));
     }
@@ -434,6 +450,10 @@ public final class ExtendedSocketOptions {
             return false;
         }
 
+        boolean sioKeepAliveOptionsSupported() {
+            return false;
+        }
+
         boolean ipDontFragmentSupported() {
             return false;
         }
@@ -452,6 +472,10 @@ public final class ExtendedSocketOptions {
 
         void setTcpKeepAliveIntvl(int fd, final int value) throws SocketException {
             throw new UnsupportedOperationException("unsupported TCP_KEEPINTVL option");
+        }
+
+        void setSioKeepAliveValues(int fd, final int keepAliveTime, int keepAliveInterval) {
+            throw new UnsupportedOperationException("unsupported SIO_KEEPALIVE_VALS option");
         }
 
         void setIpDontFragment(int fd, final boolean value, boolean isIPv6) throws SocketException {

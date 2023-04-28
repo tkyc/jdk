@@ -126,6 +126,12 @@ public final class NioSocketImpl extends SocketImpl implements PlatformSocketImp
     private boolean readEOF;
     private boolean connectionReset;
 
+    // used for setting keepAlive extended socket options on Windows
+    private static int DEFAULT_KEEPALIVETIME = 7200;
+    private static int DEFAULT_KEEPALIVEINTERVAL = 1;
+    private int keepAliveTime;
+    private int keepAliveInterval;
+
     /**
      * Creates an instance of this SocketImpl.
      * @param server true if this is a SocketImpl for a ServerSocket
@@ -966,6 +972,12 @@ public final class NioSocketImpl extends SocketImpl implements PlatformSocketImp
                 } else {
                     Net.setSocketOption(fd, opt, b);
                 }
+            } else if (opt == jdk.net.ExtendedSocketOptions.SIO_KEEPALIVE_TIME) {
+                keepAliveTime = (int) value;
+                Net.setSioKeepAliveValues(fd, value, keepAliveInterval != 0 ? keepAliveInterval : DEFAULT_KEEPALIVEINTERVAL);
+            } else if (opt == jdk.net.ExtendedSocketOptions.SIO_KEEPALIVE_INTERVAL) {
+                keepAliveInterval = (int) value;
+                Net.setSioKeepAliveValues(fd, keepAliveTime != 0 ? keepAliveTime : DEFAULT_KEEPALIVETIME, value);
             } else {
                 // option does not need special handling
                 Net.setSocketOption(fd, opt, value);

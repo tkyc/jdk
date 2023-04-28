@@ -33,7 +33,22 @@ import jdk.net.ExtendedSocketOptions.PlatformSocketOptions;
 @SuppressWarnings("removal")
 class WindowsSocketOptions extends PlatformSocketOptions {
 
+    private static int DEFAULT_KEEPALIVETIME = 7200000;
+    private static int DEFAULT_KEEPALIVEINTERVAL = 1000;
+
+    private int keepAliveTime;
+    private int keepAliveInterval;
+
     public WindowsSocketOptions() {
+    }
+
+    @Override
+    boolean keepAliveOptionsSupported() {
+        // https://learn.microsoft.com/en-us/windows/win32/winsock/so-keepalive
+        // On Windows Vista and later, the number of keep-alive probes (data retransmissions) is set to 10 and cannot be changed.
+
+        // Only keepAliveTime and keepAliveInterval are supported
+        return true;
     }
 
     @Override
@@ -51,8 +66,21 @@ class WindowsSocketOptions extends PlatformSocketOptions {
         return getIpDontFragment0(fd, isIPv6);
     }
 
+    @Override
+    void setTcpKeepAliveTime(int fd, final int value) throws SocketException {
+        this.keepAliveTime = value * 1000;
+        setTcpKeepAlive(fd, this.keepAliveTime, this.keepAliveInterval != 0 ? this.keepAliveInterval : DEFAULT_KEEPALIVEINTERVAL);
+    }
+
+    @Override
+    void setTcpKeepAliveIntvl(int fd, final int value) throws SocketException {
+        this.keepAliveInterval = value * 1000;
+        setTcpKeepAlive(fd, this.keepAliveTime != 0 ? this.keepAliveTime : DEFAULT_KEEPALIVETIME, this.keepAliveInterval);
+    }
+
     private static native void setIpDontFragment0(int fd, boolean value, boolean isIPv6) throws SocketException;
     private static native boolean getIpDontFragment0(int fd, boolean isIPv6) throws SocketException;
+    private static native void setTcpKeepAlive(int fd, int keepAliveTime, int keepAliveIntvl) throws SocketException;
 
     static {
         if (System.getSecurityManager() == null) {

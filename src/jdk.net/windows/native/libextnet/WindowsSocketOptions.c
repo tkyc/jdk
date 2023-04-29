@@ -23,8 +23,9 @@
  * questions.
  */
 
-#include <windows.h>
 #include <winsock2.h>
+#include <mstcpip.h>
+#include <windows.h>
 
 #include <WS2tcpip.h>
 
@@ -101,5 +102,24 @@ JNIEXPORT jboolean JNICALL Java_jdk_net_WindowsSocketOptions_getIpDontFragment0
         handleError(env, rv, "get option IP_DONTFRAGMENT failed");
         return optval == IP_PMTUDISC_DO ? JNI_TRUE : JNI_FALSE;
     }
+}
+
+/*
+ * Class:     jdk_net_WindowsSocketOptions
+ * Method:    setTcpKeepAlive0
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_jdk_net_WindowsSocketOptions_setTcpKeepAlive0
+(JNIEnv *env, jobject unused, jint fd, jint keepAliveTime, jint keepAliveIntvl) {
+    DWORD dwBytes;
+    int rv;
+    struct tcp_keepalive keepalive;
+
+    keepalive.onoff = TRUE;
+    keepalive.keepalivetime = keepAliveTime;
+    keepalive.keepaliveinterval = keepAliveIntvl;
+
+    rv = WSAIoctl(fd, SIO_KEEPALIVE_VALS, &keepalive, sizeof(keepalive), NULL, 0, &dwBytes, NULL, NULL);
+    handleError(env, rv, "set options SIO_KEEPALIVE_VALS failed");
 }
 

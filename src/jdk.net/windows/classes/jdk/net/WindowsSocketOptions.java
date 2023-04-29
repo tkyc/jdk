@@ -37,6 +37,14 @@ class WindowsSocketOptions extends PlatformSocketOptions {
     }
 
     @Override
+    boolean siokeepAliveOptionsSupported() {
+        // https://learn.microsoft.com/en-us/windows/win32/winsock/so-keepalive
+        // On Windows Vista and later, the number of keep-alive probes (data retransmissions) is set to 10 and cannot be changed.
+        // Only keepAliveTime and keepAliveInterval are supported on Windows
+        return true;
+    }
+
+    @Override
     boolean ipDontFragmentSupported() {
         return true;
     }
@@ -51,8 +59,14 @@ class WindowsSocketOptions extends PlatformSocketOptions {
         return getIpDontFragment0(fd, isIPv6);
     }
 
+    @Override
+    void setTcpSioKeepAlive(int fd, final int keepAliveTime, final int keepAliveInterval) throws  SocketException {
+        setTcpKeepAlive0(fd, keepAliveTime * 1000, keepAliveInterval * 1000);
+    }
+
     private static native void setIpDontFragment0(int fd, boolean value, boolean isIPv6) throws SocketException;
     private static native boolean getIpDontFragment0(int fd, boolean isIPv6) throws SocketException;
+    private static native void setTcpKeepAlive0(int fd, int keepAliveTime, int keepAliveIntvl) throws SocketException;
 
     static {
         if (System.getSecurityManager() == null) {

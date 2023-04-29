@@ -972,12 +972,49 @@ public final class NioSocketImpl extends SocketImpl implements PlatformSocketImp
                 } else {
                     Net.setSocketOption(fd, opt, b);
                 }
-            } else if (opt == jdk.net.ExtendedSocketOptions.SIO_KEEPALIVE_TIME) {
-                keepAliveTime = (int) value;
-                Net.setSioKeepAliveValues(fd, value, keepAliveInterval != 0 ? keepAliveInterval : DEFAULT_KEEPALIVEINTERVAL);
-            } else if (opt == jdk.net.ExtendedSocketOptions.SIO_KEEPALIVE_INTERVAL) {
-                keepAliveInterval = (int) value;
-                Net.setSioKeepAliveValues(fd, keepAliveTime != 0 ? keepAliveTime : DEFAULT_KEEPALIVETIME, value);
+            } else if (opt == jdk.net.ExtendedSocketOptions.SIO_KEEPALIVE_TIME || opt == jdk.net.ExtendedSocketOptions.SIO_KEEPALIVE_INTERVAL) {
+
+                if (value == null)
+                    throw new IllegalArgumentException("Invalid option value");
+
+                ExtendedSocketOptions.SioKeepAlive sio = new ExtendedSocketOptions.SioKeepAlive() {
+                    int sioKeepAliveTime;
+                    int sioKeepAliveInterval;
+
+                    @Override
+                    public int getKeepAliveTime() {
+                        return sioKeepAliveTime;
+                    }
+
+                    @Override
+                    public int getKeepAliveInterval() {
+                        return sioKeepAliveInterval;
+                    }
+
+                    @Override
+                    public void setKeepAliveTime(int keepAliveTime) {
+                        sioKeepAliveTime = keepAliveTime;
+                    }
+
+                    @Override
+                    public void setKeepAliveInterval(int keepAliveInterval) {
+                        sioKeepAliveInterval = keepAliveInterval;
+                    }
+                };
+
+                if (opt == jdk.net.ExtendedSocketOptions.SIO_KEEPALIVE_TIME) {
+                    keepAliveTime = (int) value;
+                    sio.setKeepAliveTime(keepAliveTime);
+                    sio.setKeepAliveInterval(keepAliveInterval != 0 ? keepAliveInterval : DEFAULT_KEEPALIVEINTERVAL);
+                }
+
+                if (opt == jdk.net.ExtendedSocketOptions.SIO_KEEPALIVE_TIME) {
+                    keepAliveInterval = (int) value;
+                    sio.setKeepAliveTime(keepAliveTime != 0 ? keepAliveTime : DEFAULT_KEEPALIVEINTERVAL);
+                    sio.setKeepAliveInterval(keepAliveInterval);
+                }
+
+                Net.setSocketOption(fd, opt, sio);
             } else {
                 // option does not need special handling
                 Net.setSocketOption(fd, opt, value);

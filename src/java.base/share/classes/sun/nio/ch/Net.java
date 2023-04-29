@@ -379,12 +379,6 @@ public class Net {
     static final ExtendedSocketOptions EXTENDED_OPTIONS =
             ExtendedSocketOptions.getInstance();
 
-    static void setSioKeepAliveValues(FileDescriptor fd, Object keepAliveTime, Object keepAliveInterval) throws IOException {
-        if (keepAliveTime == null || keepAliveInterval == null)
-            throw new IllegalArgumentException("Invalid option value");
-        EXTENDED_OPTIONS.setTcpSioKeepAliveValues(fd, (Integer) keepAliveTime, (Integer) keepAliveInterval);
-    }
-
     static void setSocketOption(FileDescriptor fd, SocketOption<?> name, Object value)
         throws IOException
     {

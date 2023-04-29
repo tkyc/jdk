@@ -66,7 +66,7 @@ class WindowsSocketOptions extends PlatformSocketOptions {
     }
 
     @Override
-    void setSioKeepAliveValues(int fd, final int keepAliveTime, int keepAliveInterval) {
+    void setSioKeepAliveValues(int fd, final int keepAliveTime, int keepAliveInterval) throws SocketException {
         setTcpKeepAlive(fd, keepAliveTime, keepAliveInterval);
     }
 

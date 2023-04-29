@@ -221,4 +221,11 @@ public abstract class ExtendedSocketOptions {
                     "no extended options: " + option.name());
         }
     }
+
+    public interface SioKeepAlive {
+        int getKeepAliveTime();
+        int getKeepAliveInterval();
+        void setKeepAliveTime(int keepAliveTime);
+        void setKeepAliveInterval(int keepAliveInterval);
+    }
 }

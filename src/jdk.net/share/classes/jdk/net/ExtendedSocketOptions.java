@@ -295,6 +295,9 @@ public final class ExtendedSocketOptions {
                     setTcpKeepAliveTime(fd, (Integer) value);
                 } else if (option == TCP_KEEPINTERVAL) {
                     setTcpKeepAliveIntvl(fd, (Integer) value);
+                } else if (option == SIO_KEEPALIVE_TIME || option == SIO_KEEPALIVE_INTERVAL) {
+                    SioKeepAlive sio = (SioKeepAlive) value;
+                    setTcpSioKeepAliveValues(fd, sio.getKeepAliveTime(), sio.getKeepAliveInterval());
                 } else if (option == SO_INCOMING_NAPI_ID) {
                     if (!incomingNapiIdOptSupported)
                         throw new UnsupportedOperationException("Attempt to set unsupported option " + option);
@@ -474,7 +477,7 @@ public final class ExtendedSocketOptions {
             throw new UnsupportedOperationException("unsupported TCP_KEEPINTVL option");
         }
 
-        void setSioKeepAliveValues(int fd, final int keepAliveTime, int keepAliveInterval) {
+        void setSioKeepAliveValues(int fd, final int keepAliveTime, int keepAliveInterval) throws SocketException {
             throw new UnsupportedOperationException("unsupported SIO_KEEPALIVE_VALS option");
         }
 

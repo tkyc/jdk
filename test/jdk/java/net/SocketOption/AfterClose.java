@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jdk.net.SioKeepAlive;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import static java.lang.Boolean.*;
@@ -107,6 +108,9 @@ public class AfterClose {
             map.put((SocketOption<?>)field.get(null), listOf(RO));
             field = c.getField("IP_DONTFRAGMENT");
             map.put((SocketOption<?>)field.get(null), listOf(TRUE, FALSE));
+            field = c.getField("TCP_SIO_KEEPALIVE");
+            map.put((SocketOption<?>)field.get(null), listOf(new SioKeepAlive(10, 10),
+                    new SioKeepAlive(100, 100)));
         } catch (ClassNotFoundException e) {
             // ignore, jdk.net module not present
         } catch (ReflectiveOperationException e) {

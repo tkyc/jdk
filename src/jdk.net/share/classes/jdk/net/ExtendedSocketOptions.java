@@ -329,6 +329,8 @@ public final class ExtendedSocketOptions {
                     return getSoPeerCred(fd);
                 } else if (option == SO_INCOMING_NAPI_ID) {
                     return getIncomingNapiId(fd);
+                } else if (option == TCP_SIO_KEEPALIVE) {
+                    throw new SocketException("Acquiring option value for TCP_SIO_KEEPALIVE is not supported");
                 } else {
                     throw new InternalError("Unexpected option " + option);
                 }

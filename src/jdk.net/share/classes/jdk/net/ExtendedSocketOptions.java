@@ -59,9 +59,6 @@ public final class ExtendedSocketOptions {
 
     private ExtendedSocketOptions() { }
 
-    public static final SocketOption<SioKeepAlive> TCP_SIO_KEEPALIVE =
-            new ExtSocketOption<SioKeepAlive>("TCP_SIO_KEEPALIVE", SioKeepAlive.class);
-
     /**
      * Disable Delayed Acknowledgements.
      *
@@ -156,6 +153,27 @@ public final class ExtendedSocketOptions {
             = new ExtSocketOption<Integer>("TCP_KEEPCOUNT", Integer.class);
 
     /**
+     * Keep-Alive idle time and Keep-Alive retransmission interval time for Windows platforms.
+     *
+     * <p>
+     * The value of this socket option is a {@code SioKeepAlive}, which represents the
+     * Keep-Alive idle time and Keep-Alive retransmission interval time for Windows platforms.
+     * Keep-Alive idle time is the number of seconds of idle time before Keep-Alive initiates
+     * a probe. Keep-Alive retransmission interval time is the number of seconds to wait
+     * before retransmitting a Keep-Alive probe. The socket option applies only to Windows
+     * stream-oriented sockets using the TCP/IP protocol.
+     *
+     * <p>
+     * Setting this socket option enables {@link java.net.StandardSocketOptions#SO_KEEPALIVE
+     * SO_KEEPALIVE} socket option by default. For Windows, default Keep-Alive idle time is
+     * 2 hours and the default Keep-Alive retransmission interval time is 1 second.
+     *
+     * @since 21
+     */
+    public static final SocketOption<SioKeepAlive> TCP_SIO_KEEPALIVE =
+            new ExtSocketOption<SioKeepAlive>("TCP_SIO_KEEPALIVE", SioKeepAlive.class);
+
+    /**
      * Identifies the receive queue that the last incoming packet for the socket
      * was received on.
      *
@@ -234,8 +252,8 @@ public final class ExtendedSocketOptions {
             platformSocketOptions.quickAckSupported();
     private static final boolean keepAliveOptSupported =
             platformSocketOptions.keepAliveOptionsSupported();
-    private static final boolean siokeepAliveOptSupported =
-            platformSocketOptions.siokeepAliveOptionsSupported();
+    private static final boolean sioKeepAliveOptSupported =
+            platformSocketOptions.sioKeepAliveOptionsSupported();
     private static final boolean peerCredentialsSupported =
             platformSocketOptions.peerCredentialsSupported();
     private static final boolean incomingNapiIdOptSupported  =
@@ -256,7 +274,7 @@ public final class ExtendedSocketOptions {
         if (keepAliveOptSupported) {
             options.addAll(Set.of(TCP_KEEPCOUNT, TCP_KEEPIDLE, TCP_KEEPINTERVAL));
         }
-        if (siokeepAliveOptSupported) {
+        if (sioKeepAliveOptSupported) {
             options.add(TCP_SIO_KEEPALIVE);
         }
         if (peerCredentialsSupported) {
@@ -452,7 +470,7 @@ public final class ExtendedSocketOptions {
             return false;
         }
 
-        boolean siokeepAliveOptionsSupported() {
+        boolean sioKeepAliveOptionsSupported() {
             return false;
         }
 

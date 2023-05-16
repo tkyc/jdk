@@ -36,12 +36,16 @@ import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import jdk.net.ExtendedSocketOptions;
+import jdk.net.SioKeepAlive;
+
+import static java.net.StandardSocketOptions.SO_KEEPALIVE;
 
 public class TcpKeepAliveTest {
 
     private static final int DEFAULT_KEEP_ALIVE_PROBES = 7;
     private static final int DEFAULT_KEEP_ALIVE_TIME = 1973;
     private static final int DEFAULT_KEEP_ALIVE_INTVL = 53;
+    private static final SioKeepAlive DEFAULT_SIO_KEEP_ALIVE = new SioKeepAlive(1995, 25);
 
     public static void main(String args[]) throws IOException {
         var loopback = InetAddress.getLoopbackAddress();
@@ -85,6 +89,15 @@ public class TcpKeepAliveTest {
                     throw new RuntimeException("Test failed, TCP_KEEPINTERVAL should have been " + DEFAULT_KEEP_ALIVE_INTVL);
                 }
             }
+            if (ss.supportedOptions().contains(ExtendedSocketOptions.TCP_SIO_KEEPALIVE)) {
+                ss.setOption(ExtendedSocketOptions.TCP_SIO_KEEPALIVE, DEFAULT_SIO_KEEP_ALIVE); // can't check
+            }
+            if (s.supportedOptions().contains(ExtendedSocketOptions.TCP_SIO_KEEPALIVE)) {
+                s.setOption(ExtendedSocketOptions.TCP_SIO_KEEPALIVE, DEFAULT_SIO_KEEP_ALIVE);
+                if (!s.getOption(SO_KEEPALIVE)) {
+                    throw new RuntimeException("Test failed, TCP_SIO_KEEPALIVE should have been set");
+                }
+            }
             if (ds.supportedOptions().contains(ExtendedSocketOptions.TCP_KEEPCOUNT)) {
                 throw new RuntimeException("Test failed, TCP_KEEPCOUNT is applicable"
                         + " for TCP Sockets only.");
@@ -108,6 +121,15 @@ public class TcpKeepAliveTest {
             if (mc.supportedOptions().contains(ExtendedSocketOptions.TCP_KEEPINTERVAL)) {
                 throw new RuntimeException("Test failed, TCP_KEEPINTERVAL is applicable"
                         + " for TCP Sockets only");
+            }
+            if (ds.supportedOptions().contains(ExtendedSocketOptions.TCP_SIO_KEEPALIVE)) {
+                throw new RuntimeException("Test failed, TCP_SIO_KEEPALIVE is applicable"
+                        + " for TCP Sockets on Windows only.");
+            }
+
+            if (mc.supportedOptions().contains(ExtendedSocketOptions.TCP_SIO_KEEPALIVE)) {
+                throw new RuntimeException("Test failed, TCP_SIO_KEEPALIVE is applicable"
+                        + " for TCP Sockets on Windows only");
             }
         }
     }

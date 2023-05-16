@@ -38,6 +38,8 @@ import java.net.SocketOption;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.util.Set;
+
+import jdk.net.SioKeepAlive;
 import sun.net.ext.ExtendedSocketOptions;
 import static java.net.StandardSocketOptions.*;
 import static jdk.net.ExtendedSocketOptions.*;
@@ -61,12 +63,16 @@ public class SocketOptionTests {
     static void test(SocketChannel sc) throws IOException {
         Set<SocketOption<?>> extendedOptions = ExtendedSocketOptions.clientSocketOptions();
         Set<SocketOption<?>> keepAliveOptions = Set.of(TCP_KEEPCOUNT, TCP_KEEPIDLE, TCP_KEEPINTERVAL);
+        Set<SocketOption<?>> windowsKeepAliveOptions = Set.of(TCP_SIO_KEEPALIVE);
         boolean keepAliveOptionsSupported = extendedOptions.containsAll(keepAliveOptions);
+        boolean windowsKeepAliveOptionsSupported = extendedOptions.containsAll(windowsKeepAliveOptions);
         Set<SocketOption<?>> expected;
         if (keepAliveOptionsSupported) {
             expected = Set.of(SO_SNDBUF, SO_RCVBUF, SO_KEEPALIVE,
                     SO_REUSEADDR, SO_LINGER, TCP_NODELAY, TCP_KEEPCOUNT,
                     TCP_KEEPIDLE, TCP_KEEPINTERVAL);
+        } else if (windowsKeepAliveOptionsSupported) {
+            expected = Set.of(TCP_SIO_KEEPALIVE);
         } else {
             expected = Set.of(SO_SNDBUF, SO_RCVBUF, SO_KEEPALIVE,
                     SO_REUSEADDR, SO_LINGER, TCP_NODELAY);
@@ -141,6 +147,10 @@ public class SocketOptionTests {
             checkOption(sc, TCP_KEEPINTERVAL, 123);
             sc.setOption(TCP_KEEPCOUNT, 7);
             checkOption(sc, TCP_KEEPCOUNT, 7);
+        }
+        if (windowsKeepAliveOptionsSupported) {
+            sc.setOption(TCP_SIO_KEEPALIVE, new SioKeepAlive(1234, 123));
+            checkOption(sc, SO_KEEPALIVE, true);
         }
         // NullPointerException
         try {

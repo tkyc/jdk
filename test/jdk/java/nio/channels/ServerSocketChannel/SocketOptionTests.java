@@ -31,6 +31,8 @@
  * @run main/othervm --limit-modules=java.base SocketOptionTests
  */
 
+import jdk.net.SioKeepAlive;
+
 import java.nio.channels.*;
 import java.net.*;
 import java.io.IOException;
@@ -43,6 +45,7 @@ public class SocketOptionTests {
     private static final int DEFAULT_KEEP_ALIVE_PROBES = 7;
     private static final int DEFAULT_KEEP_ALIVE_TIME = 1973;
     private static final int DEFAULT_KEEP_ALIVE_INTVL = 53;
+    private static final SioKeepAlive DEFAULT_SIO_KEEP_ALIVE = new SioKeepAlive(1995, 25);
 
     static void checkOption(ServerSocketChannel ssc, SocketOption name, Object expectedValue)
         throws IOException
@@ -90,6 +93,9 @@ public class SocketOptionTests {
             ssc.setOption(TCP_KEEPINTERVAL, DEFAULT_KEEP_ALIVE_INTVL);
             checkOption(ssc, TCP_KEEPINTERVAL, DEFAULT_KEEP_ALIVE_INTVL);
 
+        }
+        if (ssc.supportedOptions().containsAll(List.of(TCP_SIO_KEEPALIVE))) {
+            ssc.setOption(TCP_SIO_KEEPALIVE, DEFAULT_SIO_KEEP_ALIVE); // can't check
         }
 
         // NullPointerException

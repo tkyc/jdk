@@ -41,11 +41,14 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+
+import jdk.net.SioKeepAlive;
 import jdk.test.lib.RandomFactory;
 import java.util.List;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPCOUNT;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPIDLE;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPINTERVAL;
+import static jdk.net.ExtendedSocketOptions.TCP_SIO_KEEPALIVE;
 
 public class Basic {
     private static final Random RAND = RandomFactory.getRandom();
@@ -197,6 +200,12 @@ public class Basic {
                 checkOption(ch, TCP_KEEPINTERVAL, 123);
                 ch.setOption(TCP_KEEPCOUNT, 7);
                 checkOption(ch, TCP_KEEPCOUNT, 7);
+            }
+
+            List<? extends SocketOption> windowsExtOptions = List.of(TCP_SIO_KEEPALIVE);
+            if (options.containsAll(windowsExtOptions)) {
+                ch.setOption(TCP_SIO_KEEPALIVE, new SioKeepAlive(1234, 123));
+                checkOption(ch, SO_KEEPALIVE, true);
             }
         }
     }

@@ -37,10 +37,7 @@ class WindowsSocketOptions extends PlatformSocketOptions {
     }
 
     @Override
-    boolean siokeepAliveOptionsSupported() {
-        // https://learn.microsoft.com/en-us/windows/win32/winsock/so-keepalive
-        // On Windows Vista and later, the number of keep-alive probes (data retransmissions) is set to 10 and cannot be changed.
-        // Only keepAliveTime and keepAliveInterval are supported on Windows
+    boolean sioKeepAliveOptionsSupported() {
         return true;
     }
 

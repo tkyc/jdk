@@ -28,6 +28,8 @@
  * @run main/timeout=180 Basic
  */
 
+import jdk.net.SioKeepAlive;
+
 import java.nio.channels.*;
 import java.net.*;
 import static java.net.StandardSocketOptions.*;
@@ -40,6 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPCOUNT;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPIDLE;
 import static jdk.net.ExtendedSocketOptions.TCP_KEEPINTERVAL;
+import static jdk.net.ExtendedSocketOptions.TCP_SIO_KEEPALIVE;
 
 public class Basic {
 
@@ -180,6 +183,10 @@ public class Basic {
                 checkOption(ch, TCP_KEEPINTERVAL, 123);
                 ch.setOption(TCP_KEEPCOUNT, 7);
                 checkOption(ch, TCP_KEEPCOUNT, 7);
+            }
+            List<? extends SocketOption> windowsExtOptions = List.of(TCP_SIO_KEEPALIVE);
+            if (options.containsAll(windowsExtOptions)) {
+                ch.setOption(TCP_SIO_KEEPALIVE, new SioKeepAlive(1234, 123)); // can't check
             }
         } finally {
             ch.close();

@@ -165,8 +165,9 @@ public final class ExtendedSocketOptions {
      *
      * <p>
      * Setting this socket option enables {@link java.net.StandardSocketOptions#SO_KEEPALIVE
-     * SO_KEEPALIVE} socket option by default. For Windows, default Keep-Alive idle time is
-     * 2 hours and the default Keep-Alive retransmission interval time is 1 second.
+     * SO_KEEPALIVE} socket option. For Windows, the default Keep-Alive idle time is
+     * 2 hours and the default Keep-Alive retransmission interval time is 1 second. On Windows
+     * Vista and later, the number of Keep-Alive probes is set to 10 and cannot be changed.
      *
      * @since 21
      */
